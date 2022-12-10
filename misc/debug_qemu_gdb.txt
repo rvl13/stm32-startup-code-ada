@@ -1,0 +1,205 @@
+
+---------------------------------------------------------------------
+Launch Qemu in one command window,
+within directory where final.elf is located.
+---------------------------------------------------------------------
+
+BareMetal_3_Blink>make clean
+rm -rf *.o *.elf *.bin *.ali *.asm
+
+>make all
+arm-eabi-gcc.exe -c -g -mcpu=cortex-m4 -mthumb -mfloat-abi=soft --RTS=../RTS_ultra_lite_stm32f4/ -o startup.o startup.adb
+arm-eabi-gcc.exe -c -g -mcpu=cortex-m4 -mthumb -mfloat-abi=soft --RTS=../RTS_ultra_lite_stm32f4/ -o handlers.o handlers.adb
+arm-eabi-gcc.exe -c -g -mcpu=cortex-m4 -mthumb -mfloat-abi=soft --RTS=../RTS_ultra_lite_stm32f4/ -o main_1.o main_1.adb
+arm-eabi-gcc.exe -c -g -mcpu=cortex-m4 -mthumb -mfloat-abi=soft --RTS=../RTS_ultra_lite_stm32f4/ -o pack_1.o pack_1.adb
+arm-eabi-gcc.exe -c -g -mcpu=cortex-m4 -mthumb -mfloat-abi=soft --RTS=../RTS_ultra_lite_stm32f4/ -o leds.o leds.adb
+arm-eabi-gcc.exe -mcpu=cortex-m4 -mthumb -T stm32_ls.ld -nostdlib -Wl,-Map=final.map -o final.elf main_1.o startup.o pack_1.o handlers.o leds.o
+
+>make disasm
+arm-eabi-objdump.exe -D main_1.o > main_1.asm
+arm-eabi-objdump.exe -S main_1.o > main_1_i.asm
+arm-eabi-objdump.exe -D pack_1.o > pack_1.asm
+arm-eabi-objdump.exe -S pack_1.o > pack_1_i.asm
+arm-eabi-objdump.exe -D startup.o > startup.asm
+arm-eabi-objdump.exe -S startup.o > startup_i.asm
+arm-eabi-objdump.exe -D handlers.o > handlers.asm
+arm-eabi-objdump.exe -S handlers.o > handlers_i.asm
+arm-eabi-objdump.exe -D leds.o > leds.asm
+arm-eabi-objdump.exe -S leds.o > leds_i.asm
+arm-eabi-objdump.exe -D final.elf > final.asm
+arm-eabi-objdump.exe -S final.elf > final_i.asm
+
+>make header
+arm-eabi-objdump.exe -h final.elf
+
+final.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000434  08000000  08000000  00010000  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000010  20000000  08000434  00020000  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000004  20000010  08000444  00020010  2**2
+                  ALLOC
+  3 .debug_info   00000620  00000000  00000000  00020010  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_abbrev 00000304  00000000  00000000  00020630  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_aranges 000000a0  00000000  00000000  00020934  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_line   000002b4  00000000  00000000  000209d4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_str    00000924  00000000  00000000  00020c88  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .comment      0000003d  00000000  00000000  000215ac  2**0
+                  CONTENTS, READONLY
+  9 .ARM.attributes 00000031  00000000  00000000  000215e9  2**0
+                  CONTENTS, READONLY
+ 10 .debug_frame  0000027c  00000000  00000000  0002161c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+
+>make emu2
+D:/SW_9/xpack-qemu-arm-7.0.0-1-win32-x64/xpack-qemu-arm-7.0.0-1/bin/qemu-system-gnuarmeclipse.exe -cpu cortex-m4 -machine STM32F4-Discovery -gdb tcp::1234 -nographic -S -kernel final.elf
+QEMU 2.8.0 monitor - type 'help' for more information
+(qemu) [led:red on]
+[led:red off]
+
+
+---------------------------------------------------------------------
+Simultaneously, Launch GDB in other command window,
+within directory where final.elf is located.
+---------------------------------------------------------------------
+
+>make debug
+arm-eabi-gdb.exe
+arm-eabi-gdb.exe: warning: Couldn't determine a path for the index cache directory.
+GNU gdb (GDB) 8.3 for GNAT Community 2019 [rev=gdb-8.3-ref-194-g3fc1095]
+Copyright (C) 2019 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+See your support agreement for details of warranty and support.
+If you do not have a current support agreement, then there is absolutely
+no warranty for this version of GDB.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "--host=x86_64-pc-mingw32 --target=arm-eabi".
+Type "show configuration" for configuration details.
+For help, type "help".
+Type "apropos word" to search for commands related to "word".
+(gdb) file final.elf
+Reading symbols from final.elf...
+(gdb) target remote localhost:1234
+Remote debugging using localhost:1234
+<Reset_Handler> () at startup.adb:9
+9           procedure Reset_Handler is
+(gdb) x 0x20000008
+0x20000008 <pack_1__magic_word>:        0x00000000
+(gdb) x 0x20000010
+0x20000010 <pack_1__initialize_me>:     0x00000000
+(gdb) b 64
+Breakpoint 1 at 0x80002e0: file startup.adb, line 64.
+(gdb) c
+Continuing.
+
+Breakpoint 1, <Reset_Handler> () at startup.adb:64
+64              main_1;
+(gdb) x 0x20000008
+0x20000008 <pack_1__magic_word>:        0x1c0deada
+(gdb) x 0x20000010
+0x20000010 <pack_1__initialize_me>:     0x00000000
+(gdb) step
+main_1 () at main_1.adb:26
+26          v1 := get_100Pi;
+(gdb) step
+pack_1.get_100pi () at pack_1.adb:5
+5               return 314;
+(gdb) step
+6           end;
+(gdb) step
+main_1 () at main_1.adb:28
+28          v1 := v1 * 2;
+(gdb) step
+30          v2 := Magic_word;
+(gdb) info locals
+v1 = 628
+v2 = 0
+(gdb) step
+32          Initialize_me := 16#C0FFEE13#;
+(gdb) info locals
+v1 = 628
+v2 = 470674138
+(gdb) p/x v2
+$1 = 0x1c0deada
+(gdb) step
+34          Init_Leds;
+(gdb) info locals
+v1 = 628
+v2 = 470674138
+(gdb) x 0x20000010
+0x20000010 <pack_1__initialize_me>:     0xc0ffee13
+(gdb) step
+leds.init_leds () at leds.adb:6
+6               RCC_AHB1_ENR := RCC_AHB1_ENR or 16#08#;
+(gdb) step
+8               GPIOD_MODER := GPIOD_MODER or Shift_Left(1, 2 * Red_Led);
+(gdb) step
+10              Led_Off(Red_Led);
+(gdb) step
+leds.led_off (this=14) at leds.adb:20
+20              GPIOD_ODR := GPIOD_ODR and ( not ( Shift_Left(1, This) ) );
+(gdb) step
+21          end Led_Off;
+(gdb) step
+leds.init_leds () at leds.adb:11
+11          end init_leds;
+(gdb) step
+main_1 () at main_1.adb:36
+36          Led_On(Red_Led);
+(gdb) step
+leds.led_on (this=14) at leds.adb:15
+15              GPIOD_ODR := GPIOD_ODR or Shift_Left(1, This);
+(gdb) step
+16          end Led_On;
+(gdb) step
+main_1 () at main_1.adb:38
+38          Led_Off(Red_Led);
+(gdb) step
+leds.led_off (this=14) at leds.adb:20
+20              GPIOD_ODR := GPIOD_ODR and ( not ( Shift_Left(1, This) ) );
+(gdb) step
+21          end Led_Off;
+(gdb) step
+main_1 () at main_1.adb:40
+40      end main_1;
+(gdb) step
+<Reset_Handler> () at startup.adb:65
+65          end Reset_Handler;
+(gdb) info locals
+data_size = 16
+bss_size = 4
+(gdb) step
+0x00000000 in ?? ()
+(gdb) step
+Cannot find bounds of current function
+(gdb) Quit
+(gdb) q
+A debugging session is active.
+
+        Inferior 1 [Remote target] will be detached.
+
+Quit anyway? (y or n) y
+Detaching from program: final.elf, Remote target
+Ending remote debugging.
+[Inferior 1 (Remote target) detached]
+
+
+
+
+
+
+
+
+
+
+
+

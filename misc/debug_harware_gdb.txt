@@ -1,0 +1,389 @@
+
+---------------------------------------------------------------------
+Launch OpenOCD in one command window,
+within directory where final.elf is located.
+---------------------------------------------------------------------
+
+>make clean
+rm -rf *.o *.elf *.bin *.ali *.asm
+
+>make all
+arm-eabi-gcc.exe -c -g -mcpu=cortex-m4 -mthumb -mfloat-abi=soft --RTS=../RTS_ultra_lite_stm32f4/ -o startup.o startup.adb
+arm-eabi-gcc.exe -c -g -mcpu=cortex-m4 -mthumb -mfloat-abi=soft --RTS=../RTS_ultra_lite_stm32f4/ -o handlers.o handlers.adb
+arm-eabi-gcc.exe -c -g -mcpu=cortex-m4 -mthumb -mfloat-abi=soft --RTS=../RTS_ultra_lite_stm32f4/ -o main_1.o main_1.adb
+arm-eabi-gcc.exe -c -g -mcpu=cortex-m4 -mthumb -mfloat-abi=soft --RTS=../RTS_ultra_lite_stm32f4/ -o pack_1.o pack_1.adb
+arm-eabi-gcc.exe -c -g -mcpu=cortex-m4 -mthumb -mfloat-abi=soft --RTS=../RTS_ultra_lite_stm32f4/ -o leds.o leds.adb
+arm-eabi-gcc.exe -mcpu=cortex-m4 -mthumb -T stm32_ls.ld -nostdlib -Wl,-Map=final.map -o final.elf main_1.o startup.o pack_1.o handlers.o leds.o
+
+>make disasm
+arm-eabi-objdump.exe -D main_1.o > main_1.asm
+arm-eabi-objdump.exe -S main_1.o > main_1_i.asm
+arm-eabi-objdump.exe -D pack_1.o > pack_1.asm
+arm-eabi-objdump.exe -S pack_1.o > pack_1_i.asm
+arm-eabi-objdump.exe -D startup.o > startup.asm
+arm-eabi-objdump.exe -S startup.o > startup_i.asm
+arm-eabi-objdump.exe -D handlers.o > handlers.asm
+arm-eabi-objdump.exe -S handlers.o > handlers_i.asm
+arm-eabi-objdump.exe -D leds.o > leds.asm
+arm-eabi-objdump.exe -S leds.o > leds_i.asm
+arm-eabi-objdump.exe -D final.elf > final.asm
+arm-eabi-objdump.exe -S final.elf > final_i.asm
+
+>make load
+openocd -f board/stm32f4discovery.cfg
+xPack OpenOCD x86_64 Open On-Chip Debugger 0.11.0+dev (2022-09-01-17:58)
+Licensed under GNU GPL v2
+For bug reports, read
+        http://openocd.org/doc/doxygen/bugs.html
+Info : The selected transport took over low-level target control. The results might differ compared to plain JTAG/SWD
+srst_only separate srst_nogate srst_open_drain connect_deassert_srst
+
+Info : Listening on port 6666 for tcl connections
+Info : Listening on port 4444 for telnet connections
+Info : clock speed 2000 kHz
+Info : STLINK V2J39M27 (API v2) VID:PID 0483:374B
+Info : Target voltage: 2.929685
+Info : [stm32f4x.cpu] Cortex-M4 r0p1 processor detected
+Info : [stm32f4x.cpu] target has 6 breakpoints, 4 watchpoints
+Info : starting gdb server for stm32f4x.cpu on 3333
+Info : Listening on port 3333 for gdb connections
+Info : accepting 'telnet' connection on tcp/4444
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+target halted due to debug-request, current mode: Thread
+xPSR: 0x01000000 pc: 0x08000230 msp: 0x20020000
+Info : Unable to match requested speed 8000 kHz, using 4000 kHz
+Info : Unable to match requested speed 8000 kHz, using 4000 kHz
+Info : device id = 0x10076413
+Info : flash size = 1024 KiB
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+shutdown command invoked
+Info : dropped 'telnet' connection
+
+>make load
+openocd -f board/stm32f4discovery.cfg
+xPack OpenOCD x86_64 Open On-Chip Debugger 0.11.0+dev (2022-09-01-17:58)
+Licensed under GNU GPL v2
+For bug reports, read
+        http://openocd.org/doc/doxygen/bugs.html
+Info : The selected transport took over low-level target control. The results might differ compared to plain JTAG/SWD
+srst_only separate srst_nogate srst_open_drain connect_deassert_srst
+
+Info : Listening on port 6666 for tcl connections
+Info : Listening on port 4444 for telnet connections
+Info : clock speed 2000 kHz
+Info : STLINK V2J39M27 (API v2) VID:PID 0483:374B
+Info : Target voltage: 2.931112
+Info : [stm32f4x.cpu] Cortex-M4 r0p1 processor detected
+Info : [stm32f4x.cpu] target has 6 breakpoints, 4 watchpoints
+Info : starting gdb server for stm32f4x.cpu on 3333
+Info : Listening on port 3333 for gdb connections
+Info : accepting 'gdb' connection on tcp/3333
+target halted due to debug-request, current mode: Thread
+xPSR: 0x01000000 pc: 0x08000420 msp: 0x2001ffb0
+Info : device id = 0x10076413
+Info : flash size = 1024 KiB
+Info : flash size = 512 bytes
+Warn : Prefer GDB command "target extended-remote :3333" instead of "target remote :3333"
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+target halted due to debug-request, current mode: Thread
+xPSR: 0x01000000 pc: 0x08000230 msp: 0x20020000
+Info : Unable to match requested speed 8000 kHz, using 4000 kHz
+Info : Unable to match requested speed 8000 kHz, using 4000 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+target halted due to debug-request, current mode: Thread
+xPSR: 0x01000000 pc: 0x08000230 msp: 0x20020000
+Info : halted: PC: 0x08000232
+Info : halted: PC: 0x08000234
+Info : halted: PC: 0x08000236
+Info : halted: PC: 0x08000188
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+target halted due to debug-request, current mode: Thread
+xPSR: 0x01000000 pc: 0x08000230 msp: 0x20020000
+Info : Unable to match requested speed 8000 kHz, using 4000 kHz
+Info : Unable to match requested speed 8000 kHz, using 4000 kHz
+Info : halted: PC: 0x08000232
+Info : halted: PC: 0x08000234
+Info : halted: PC: 0x08000236
+Info : halted: PC: 0x08000188
+Info : halted: PC: 0x08000384
+Info : halted: PC: 0x0800030c
+Info : halted: PC: 0x08000198
+Info : halted: PC: 0x0800019a
+Info : halted: PC: 0x0800019e
+Info : halted: PC: 0x080001a0
+Info : halted: PC: 0x080001a2
+Info : halted: PC: 0x080001a6
+Info : halted: PC: 0x080001b0
+Info : halted: PC: 0x080001b2
+Info : halted: PC: 0x080001b4
+Info : halted: PC: 0x080001b6
+Info : halted: PC: 0x080001b8
+Info : halted: PC: 0x080001ba
+Info : halted: PC: 0x080001bc
+Info : halted: PC: 0x080001be
+Info : halted: PC: 0x080001c0
+Info : halted: PC: 0x080001c2
+Info : halted: PC: 0x080001c4
+Info : halted: PC: 0x080003b0
+Info : halted: PC: 0x080001ca
+Info : halted: PC: 0x08000414
+Info : halted: PC: 0x080001d0
+Info : halted: PC: 0x080003e0
+Info : halted: PC: 0x080001d6
+Info : halted: PC: 0x08000414
+Info : halted: PC: 0x080001c2
+Info : halted: PC: 0x080001c4
+Info : halted: PC: 0x080003b0
+Info : halted: PC: 0x080001ca
+Info : halted: PC: 0x08000414
+Info : halted: PC: 0x080001d0
+Info : halted: PC: 0x080003e0
+Info : halted: PC: 0x080001d6
+Info : halted: PC: 0x08000414
+Info : halted: PC: 0x080001c2
+Info : halted: PC: 0x080001c4
+Info : halted: PC: 0x080003b0
+Info : halted: PC: 0x080001ca
+Info : halted: PC: 0x08000414
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+Info : Unable to match requested speed 2000 kHz, using 1800 kHz
+target halted due to debug-request, current mode: Thread
+xPSR: 0x01000000 pc: 0x08000230 msp: 0x20020000
+Info : halted: PC: 0x08000232
+Info : halted: PC: 0x08000234
+Info : halted: PC: 0x08000236
+Info : halted: PC: 0x08000188
+shutdown command invoked
+
+
+---------------------------------------------------------------------
+Simultaneously, Launch GDB in other command window,
+within directory where final.elf is located.
+---------------------------------------------------------------------
+
+>make debug
+arm-eabi-gdb.exe
+arm-eabi-gdb.exe: warning: Couldn't determine a path for the index cache directory.
+GNU gdb (GDB) 8.3 for GNAT Community 2019 [rev=gdb-8.3-ref-194-g3fc1095]
+Copyright (C) 2019 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+See your support agreement for details of warranty and support.
+If you do not have a current support agreement, then there is absolutely
+no warranty for this version of GDB.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "--host=x86_64-pc-mingw32 --target=arm-eabi".
+Type "show configuration" for configuration details.
+For help, type "help".
+Type "apropos word" to search for commands related to "word".
+(gdb) file final.elf
+Reading symbols from final.elf...
+(gdb) target remote localhost:3333
+Remote debugging using localhost:3333
+leds.delay_sw (this=160000) at leds.adb:26
+26              while (Counter < This) loop
+(gdb) monitor reset init
+Unable to match requested speed 2000 kHz, using 1800 kHz
+Unable to match requested speed 2000 kHz, using 1800 kHz
+target halted due to debug-request, current mode: Thread
+xPSR: 0x01000000 pc: 0x08000230 msp: 0x20020000
+Unable to match requested speed 8000 kHz, using 4000 kHz
+Unable to match requested speed 8000 kHz, using 4000 kHz
+(gdb) monitor flash write_image erase final.elf
+auto erase enabled
+wrote 16384 bytes from file final.elf in 0.518772s (30.842 KiB/s)
+(gdb) monitor reset
+Unable to match requested speed 2000 kHz, using 1800 kHz
+Unable to match requested speed 2000 kHz, using 1800 kHz
+(gdb) monitor reset halt
+Unable to match requested speed 2000 kHz, using 1800 kHz
+Unable to match requested speed 2000 kHz, using 1800 kHz
+target halted due to debug-request, current mode: Thread
+xPSR: 0x01000000 pc: 0x08000230 msp: 0x20020000
+(gdb) step
+halted: PC: 0x08000232
+halted: PC: 0x08000234
+halted: PC: 0x08000236
+<Reset_Handler> () at startup.adb:26
+26              Data_Size : constant Unsigned_32 := Addr_To_U32(Edata'Address) - Addr_To_U32(Sdata'Address);
+(gdb) b 64
+Breakpoint 1 at 0x80002ec: file startup.adb, line 64.
+(gdb) c
+Continuing.
+Note: automatically using hardware breakpoints for read-only addresses.
+
+Breakpoint 1, <Reset_Handler> () at startup.adb:64
+64              main_1;
+(gdb) c
+Continuing.
+halted: PC: 0x08000188
+
+Program received signal SIGINT, Interrupt.
+0x0800043c in leds.delay_sw (this=160000) at leds.adb:27
+27                  Counter := Counter + 1;
+(gdb) c
+Continuing.
+
+Program received signal SIGINT, Interrupt.
+0x08000424 in leds.delay_sw (this=160000) at leds.adb:26
+26              while (Counter < This) loop
+(gdb) c
+Continuing.
+
+Program received signal SIGINT, Interrupt.
+0x0800042a in leds.delay_sw (this=160000) at leds.adb:27
+27                  Counter := Counter + 1;
+(gdb) monitor reset init
+Unable to match requested speed 2000 kHz, using 1800 kHz
+Unable to match requested speed 2000 kHz, using 1800 kHz
+target halted due to debug-request, current mode: Thread
+xPSR: 0x01000000 pc: 0x08000230 msp: 0x20020000
+Unable to match requested speed 8000 kHz, using 4000 kHz
+Unable to match requested speed 8000 kHz, using 4000 kHz
+(gdb) step
+halted: PC: 0x08000232
+halted: PC: 0x08000234
+halted: PC: 0x08000236
+<Reset_Handler> () at startup.adb:26
+26              Data_Size : constant Unsigned_32 := Addr_To_U32(Edata'Address) - Addr_To_U32(Sdata'Address);
+(gdb) c
+Continuing.
+
+Breakpoint 1, <Reset_Handler> () at startup.adb:64
+64              main_1;
+(gdb) s
+halted: PC: 0x08000188
+main_1 () at main_1.adb:26
+26          Init_Leds;
+(gdb) n
+halted: PC: 0x08000384
+28          v1 := get_100Pi;
+(gdb) n
+halted: PC: 0x0800030c
+halted: PC: 0x08000198
+30          v1 := v1 * 2;
+(gdb) n
+halted: PC: 0x0800019a
+halted: PC: 0x0800019e
+halted: PC: 0x080001a0
+halted: PC: 0x080001a2
+halted: PC: 0x080001a6
+halted: PC: 0x080001b0
+halted: PC: 0x080001b2
+halted: PC: 0x080001b4
+halted: PC: 0x080001b6
+32          v2 := Magic_word;
+(gdb) n
+halted: PC: 0x080001b8
+halted: PC: 0x080001ba
+halted: PC: 0x080001bc
+34          Initialize_me := 16#C0FFEE13#;
+(gdb) n
+halted: PC: 0x080001be
+halted: PC: 0x080001c0
+halted: PC: 0x080001c2
+37              Led_On(Red_Led);
+(gdb) n
+halted: PC: 0x080001c4
+halted: PC: 0x080003b0
+38              delay_sw(160000);
+(gdb) n
+halted: PC: 0x080001ca
+halted: PC: 0x08000414
+40              Led_Off(Red_Led);
+(gdb) n
+halted: PC: 0x080001d0
+halted: PC: 0x080003e0
+41              delay_sw(160000);
+(gdb) n
+halted: PC: 0x080001d6
+halted: PC: 0x08000414
+42          end loop;
+(gdb) n
+halted: PC: 0x080001c2
+37              Led_On(Red_Led);
+(gdb) n
+halted: PC: 0x080001c4
+halted: PC: 0x080003b0
+38              delay_sw(160000);
+(gdb) n
+halted: PC: 0x080001ca
+halted: PC: 0x08000414
+40              Led_Off(Red_Led);
+(gdb) n
+halted: PC: 0x080001d0
+halted: PC: 0x080003e0
+41              delay_sw(160000);
+(gdb) n
+halted: PC: 0x080001d6
+halted: PC: 0x08000414
+42          end loop;
+(gdb) n
+halted: PC: 0x080001c2
+37              Led_On(Red_Led);
+(gdb) n
+halted: PC: 0x080001c4
+halted: PC: 0x080003b0
+38              delay_sw(160000);
+(gdb) n
+halted: PC: 0x080001ca
+halted: PC: 0x08000414
+40              Led_Off(Red_Led);
+(gdb) c
+Continuing.
+
+Program received signal SIGINT, Interrupt.
+0x08000426 in leds.delay_sw (this=160000) at leds.adb:26
+26              while (Counter < This) loop
+(gdb) monitor reset
+Unable to match requested speed 2000 kHz, using 1800 kHz
+Unable to match requested speed 2000 kHz, using 1800 kHz
+(gdb) monitor reset halt
+Unable to match requested speed 2000 kHz, using 1800 kHz
+Unable to match requested speed 2000 kHz, using 1800 kHz
+target halted due to debug-request, current mode: Thread
+xPSR: 0x01000000 pc: 0x08000230 msp: 0x20020000
+(gdb) step
+halted: PC: 0x08000232
+halted: PC: 0x08000234
+halted: PC: 0x08000236
+<Reset_Handler> () at startup.adb:26
+26              Data_Size : constant Unsigned_32 := Addr_To_U32(Edata'Address) - Addr_To_U32(Sdata'Address);
+(gdb) c
+Continuing.
+
+Breakpoint 1, <Reset_Handler> () at startup.adb:64
+64              main_1;
+(gdb) s
+halted: PC: 0x08000188
+main_1 () at main_1.adb:26
+26          Init_Leds;
+(gdb) c
+Continuing.
+
+Program received signal SIGINT, Interrupt.
+0x0800042a in leds.delay_sw (this=160000) at leds.adb:27
+27                  Counter := Counter + 1;
+(gdb) info locals
+counter = 20647
+(gdb) monitor shutdown
+shutdown command invoked
+ê(gdb) q
+A debugging session is active.
+
+        Inferior 1 [Remote target] will be detached.
+
+Quit anyway? (y or n) y
+Detaching from program: final.elf, Remote target
+Remote communication error.  Target disconnected.: No error.
+
+
