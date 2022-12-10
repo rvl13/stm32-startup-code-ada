@@ -1,0 +1,10 @@
+/*.ali
+
+/asm/*.s
+
+/dasm/*.asm
+
+/obj/*.ali
+/obj/*.o
+/obj/*.elf
+/obj/*.map
